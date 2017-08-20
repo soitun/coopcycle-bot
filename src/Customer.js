@@ -1,4 +1,3 @@
-var baseURL = process.env.NODE_ENV === 'production' ? "https://coopcycle.org" : "http://coopcycle.dev";
 var CONFIG = require('../config.json');
 
 var stripe = require("stripe")(CONFIG.STRIPE_SECRET_KEY);
@@ -62,7 +61,7 @@ Customer.prototype.createRandomOrder = function() {
     token: this.model.token,
     refreshToken: this.model.refreshToken
   }
-  var client = API.createClient(baseURL, this.model);
+  var client = API.createClient(CONFIG.COOPCYCLE_BASE_URL, this.model);
 
   return new Promise((resolve, reject) => {
 

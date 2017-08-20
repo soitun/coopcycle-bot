@@ -8,7 +8,6 @@ var Promise = require('promise');
 var fetch = require('node-fetch');
 var schedule = require('node-schedule');
 
-var baseURL = process.env.NODE_ENV === 'production' ? "https://coopcycle.org" : "http://coopcycle.dev";
 var assetsBaseURL = process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:9090/';
 
 var multer = require('multer');
@@ -22,6 +21,18 @@ var PM2Utils = require('./src/PM2Utils');
 
 var CONFIG = require('./config.json');
 var stripe = require("stripe")(CONFIG.STRIPE_SECRET_KEY);
+
+console.log('   _____                   _____           _      ')
+console.log('  / ____|                 / ____|         | |     ')
+console.log(' | |     ___   ___  _ __ | |    _   _  ___| | ___ ')
+console.log(" | |    / _ \\ / _ \\| '_ \\| |   | | | |/ __| |/ _ \\")
+console.log(' | |___| (_) | (_) | |_) | |___| |_| | (__| |  __/')
+console.log('  \\_____\\___/ \\___/| .__/ \\_____\\__, |\\___|_|\\___|')
+console.log('                   | |           __/ |            ')
+console.log('                   |_|          |___/             ')
+console.log('                                                  ')
+console.log('Target: ' + CONFIG.COOPCYCLE_BASE_URL);
+console.log('---')
 
 var Sequelize = require('sequelize');
 
@@ -54,7 +65,7 @@ passport.deserializeUser(function(serialized, done) {
 
 passport.use(new LocalStrategy(
   function(username, password, done) {
-    API.login(baseURL, username, password)
+    API.login(CONFIG.COOPCYCLE_BASE_URL, username, password)
       .then((user) => {
 
         Db.Courier.findOne({
@@ -258,6 +269,7 @@ app.get('/', (req, res) => {
   });
 
 });
+
 
 app.get('/login', (req, res) => {
   var errors = req.flash('error');
