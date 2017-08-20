@@ -5,22 +5,25 @@ var bodyParser = require('body-parser');
 var fs = require('fs');
 var express = require('express');
 var Promise = require('promise');
-var fetch = require('node-fetch');
 var schedule = require('node-schedule');
 
-var assetsBaseURL = process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:9090/';
+const CONFIG = require('./config.json');
+
+require('./src/fetch-polyfill')
+const CoopCycle = require('coopcycle-js')
+const client = new CoopCycle.Client(CONFIG.COOPCYCLE_BASE_URL)
+
+var assetsBaseURL = process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:9091/';
 
 var multer = require('multer');
 var storage = multer.memoryStorage();
 var upload = multer({ storage: storage });
 
-var API = require('./src/API');
 var User = require('./src/User');
 var Customer = require('./src/Customer');
 var PM2Utils = require('./src/PM2Utils');
 
-var CONFIG = require('./config.json');
-var stripe = require("stripe")(CONFIG.STRIPE_SECRET_KEY);
+const stripe = require("stripe")(CONFIG.STRIPE_SECRET_KEY);
 
 console.log('   _____                   _____           _      ')
 console.log('  / ____|                 / ____|         | |     ')
@@ -33,6 +36,8 @@ console.log('                   |_|          |___/             ')
 console.log('                                                  ')
 console.log('Target: ' + CONFIG.COOPCYCLE_BASE_URL);
 console.log('---')
+
+/* Configure SQLite */
 
 var Sequelize = require('sequelize');
 
@@ -65,7 +70,7 @@ passport.deserializeUser(function(serialized, done) {
 
 passport.use(new LocalStrategy(
   function(username, password, done) {
-    API.login(CONFIG.COOPCYCLE_BASE_URL, username, password)
+    client.login(username, password)
       .then((user) => {
 
         Db.Courier.findOne({
@@ -101,6 +106,7 @@ passport.use(new LocalStrategy(
         });
       })
       .catch((err) => {
+        console.log(err);
         done(null, false, { message: 'Invalid credentials.' });
       });
   }

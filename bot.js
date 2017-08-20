@@ -50,7 +50,6 @@ Db.Courier.findOne({
     courier = new Courier(
       model,
       points,
-      httpBaseURL,
       wsBaseURL
     );
     courier.connect();

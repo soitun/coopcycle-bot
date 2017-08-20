@@ -2,12 +2,17 @@ var fs = require('fs');
 var WebSocket = require('ws');
 var FormData = require('form-data');
 var _ = require('underscore');
-var API = require('./API');
 var Promise = require('promise');
 var Polyline = require('polyline');
 
 var winston = require('winston');
 winston.level = process.env.NODE_ENV === 'production' ? 'info' : 'debug';
+
+const CONFIG = require('../config.json')
+
+require('./fetch-polyfill')
+const CoopCycle = require('coopcycle-js')
+const client = new CoopCycle.Client(CONFIG.COOPCYCLE_BASE_URL)
 
 var toPolylineCoordinates = function(polyline) {
   var steps = Polyline.decode(polyline);
@@ -24,13 +29,11 @@ var toPolylineCoordinates = function(polyline) {
   return polylineCoords;
 }
 
-function Courier(model, route, httpBaseURL, wsBaseURL) {
+function Courier(model, route, wsBaseURL) {
 
   this.model = model;
-  this.client = API.createClient(httpBaseURL, model);
 
   this.route = route;
-  this.httpBaseURL = httpBaseURL;
   this.wsBaseURL = wsBaseURL;
 
   this.timeout = undefined;
